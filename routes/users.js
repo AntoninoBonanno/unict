@@ -121,7 +121,7 @@ router.delete('/:user_id/favorites/:tweet_id', autenticationMiddleware.isAuth, f
       var newfavorites = new Array();
       var active = false;
       for (var i = 0; i < user['favorites'].length; i++) {
-        if (user['favorites'][i] != tweet_id) {
+        if (user['favorites'][i] != req.paramstweet_id) {
           newfavorites.push(user['favorite']);
         }
         else {
