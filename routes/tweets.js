@@ -4,18 +4,37 @@ const router = express.Router();
 const { check } = require('express-validator');
 
 const Tweet = require('../models/tweet');
+const User = require('../models/user');
 const autenticationMiddleware = require('../middlewares/auth');
 const { checkValidation } = require('../middlewares/validation');
 
 
-router.get('/', function (req, res, next) {
+router.get('/', autenticationMiddleware.isAuth, function (req, res, next) {
   Tweet.find({ _parent: null }).populate("_author", "-password").exec(function (err, tweets) {
     if (err) return res.status(500).json({ error: err });
-    res.json(tweets);
+
+    if (!res.locals.authInfo || !res.locals.authInfo.userId) {
+      res.json(tweets);
+    }
+    else {
+      User.findOne({ _id: res.locals.authInfo.userId }, "-password", function (err, user) {
+        if (err) return res.status(500).json({ error: err });
+        var favorites = new Set(user.favorites);
+        tweets.forEach(tweet => {
+          if (favorites.has(tweet.id)) {
+            tweet.isFavorite = true;
+          }
+          else {
+            tweet.isFavorite = false;
+          }
+        });
+        res.json(tweets);
+      });
+    }
   });
 });
 
-router.get('/:id', function (req, res, next) {
+router.get('/:id', autenticationMiddleware.isAuth, function (req, res, next) {
   Tweet.findOne({ _id: req.params.id })
     .populate("_author", "-password")
     .exec(function (err, tweet) {
@@ -25,7 +44,7 @@ router.get('/:id', function (req, res, next) {
     });
 });
 
-router.get('/:id/comments', function (req, res, next) {
+router.get('/:id/comments', autenticationMiddleware.isAuth, function (req, res, next) {
   Tweet.find({ _parent: req.params.id })
     .populate("_author", "-password")
     .exec(function (err, comments_tweet) {
