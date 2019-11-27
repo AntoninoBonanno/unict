@@ -99,7 +99,15 @@ router.put('/:user_id/favorites/:tweet_id', function (request, response, next) {
     .exec(function (err, user) {
       if (err) return response.status(500).json({ error: err });
       if (!user) return response.status(404).json({ message: 'User not found' })
-      user['favorites'].push(request.params.tweet_id);
+      var isPresent = false;
+      for (var i = 0; i < user['favorites'].length; i++) {
+        if (user['favorites'][i] == request.params.tweet_id) {
+          isPresent = true;
+        }
+      }
+      if (!isPresent) {
+        user['favorites'].push(request.params.tweet_id);
+      }
       user.save(function (err) {
         if (err) return response.status(500).json({ error: err });
         response.json(user);
@@ -121,7 +129,7 @@ router.delete('/:user_id/favorites/:tweet_id', autenticationMiddleware.isAuth, f
       var newfavorites = new Array();
       var active = false;
       for (var i = 0; i < user['favorites'].length; i++) {
-        if (user['favorites'][i] != req.paramstweet_id) {
+        if (user['favorites'][i] != req.params.tweet_id) {
           newfavorites.push(user['favorite']);
         }
         else {
@@ -136,7 +144,7 @@ router.delete('/:user_id/favorites/:tweet_id', autenticationMiddleware.isAuth, f
         });
       }
       else {
-        return res.status(401).json({
+        return response.status(401).json({
           error: "Unauthorized",
           message: "Favorite non found"
         })
