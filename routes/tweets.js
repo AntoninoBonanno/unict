@@ -8,40 +8,56 @@ const autenticationMiddleware = require('../middlewares/auth');
 const { checkValidation } = require('../middlewares/validation');
 
 
-router.get('/', function(req, res, next) {
-  Tweet.find().populate("_author", "-password").exec(function(err, tweets){
-    if (err) return res.status(500).json({error: err});
+router.get('/', function (req, res, next) {
+  Tweet.find({ _parent: null }).populate("_author", "-password").exec(function (err, tweets) {
+    if (err) return res.status(500).json({ error: err });
     res.json(tweets);
   });
 });
 
-router.get('/:id', function(req, res, next) {
-  Tweet.findOne({_id: req.params.id})
+router.get('/:id', function (req, res, next) {
+  Tweet.findOne({ _id: req.params.id })
     .populate("_author", "-password")
-    .exec(function(err, tweet){
-      if (err) return res.status(500).json({error: err});
-      if(!tweet) return res.status(404).json({message: 'Tweet not found'})
+    .exec(function (err, tweet) {
+      if (err) return res.status(500).json({ error: err });
+      if (!tweet) return res.status(404).json({ message: 'Tweet not found' })
       res.json(tweet);
     });
 });
 
-router.post('/',autenticationMiddleware.isAuth, [
-  check('tweet').isString().isLength({min: 1, max: 120})
-], checkValidation, function(req, res, next) {
+router.get('/:id/comments', function (req, res, next) {
+  Tweet.find({ _parent: req.params.id })
+    .populate("_author", "-password")
+    .exec(function (err, comments_tweet) {
+      if (err) return res.status(500).json({ error: err });
+      res.json(comments_tweet);
+    });
+});
+
+router.post('/', autenticationMiddleware.isAuth, [
+  check('tweet').isString().isLength({ min: 1, max: 120 })
+], checkValidation, function (req, res, next) {
   const newTweet = new Tweet(req.body);
   newTweet._author = res.locals.authInfo.userId;
-  newTweet.save(function(err){
-    if(err) {
-      return res.status(500).json({error: err});
-    } 
+
+  if (newTweet._parent != null) {
+    if (Tweet.findOne({ _id: newTweet._parent }) == null) {
+      return res.status(500).json({ err: "Il tweet non esiste" });
+    }
+  }
+
+  newTweet.save(function (err) {
+    if (err) {
+      return res.status(500).json({ error: err });
+    }
     res.status(201).json(newTweet);
   });
 });
 
 router.put('/:id', autenticationMiddleware.isAuth, [
-  check('tweet').isString().isLength({min: 1, max: 120})
-], checkValidation, function(req, res, next) {
-  Tweet.findOne({_id: req.params.id}).exec(function(err, tweet) {
+  check('tweet').isString().isLength({ min: 1, max: 120 })
+], checkValidation, function (req, res, next) {
+  Tweet.findOne({ _id: req.params.id }).exec(function (err, tweet) {
     if (err) {
       return res.status(500).json({
         error: err,
@@ -60,15 +76,15 @@ router.put('/:id', autenticationMiddleware.isAuth, [
       });
     }
     tweet.tweet = req.body.tweet;
-    tweet.save(function(err) {
-      if(err) return res.status(500).json({error: err});
+    tweet.save(function (err) {
+      if (err) return res.status(500).json({ error: err });
       res.json(tweet);
     });
   });
 });
 
-router.delete('/:id', autenticationMiddleware.isAuth, function(req, res, next) {
-  Tweet.findOne({_id: req.params.id}).exec(function(err, tweet) {
+router.delete('/:id', autenticationMiddleware.isAuth, function (req, res, next) {
+  Tweet.findOne({ _id: req.params.id }).exec(function (err, tweet) {
     if (err) {
       return res.status(500).json({
         error: err,
@@ -86,13 +102,22 @@ router.delete('/:id', autenticationMiddleware.isAuth, function(req, res, next) {
         message: "You are not the owner of the resource"
       });
     }
-    Tweet.remove({_id: req.params.id}, function(err) {
-      if(err) {
-        return res.status(500).json({error: err})
+
+    Tweet.remove({ _id: req.params.id }, function (err) {
+      if (err) {
+        return res.status(500).json({ error: err })
       }
-      res.json({message: 'Tweet successfully deleted'})
+      res.json({ message: 'Tweet successfully deleted' })
     });
   });
+
+  if (tweet._parent == null) {
+    Tweet.remove({ _parent: tweet._id }, function (err) {
+      if (err) {
+        res.status(500).json({ error: err })
+      }
+    });
+  }
 });
 
 module.exports = router;
