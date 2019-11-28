@@ -124,19 +124,22 @@ router.delete('/:id', autenticationMiddleware.isAuth, function (req, res, next) 
 
     Tweet.remove({ _id: req.params.id }, function (err) {
       if (err) {
-        return res.status(500).json({ error: err })
+        return res.status(500).json({ error: "Error deleting the tweet" })
       }
       res.json({ message: 'Tweet successfully deleted' })
     });
+    if (tweet._parent == null) {
+      Tweet.find({ _parent: req.params.id }).exec(function (err, tweets) {
+        tweets.forEach(tw => {
+          tw.remove({ _parent: tweet._id }, function (err) {
+            if (err) {
+              res.status(500).json({ error: "Error deleting tweet's comments" })
+            }
+          });
+        });
+      });
+    }
   });
-
-  if (tweet._parent == null) {
-    Tweet.remove({ _parent: tweet._id }, function (err) {
-      if (err) {
-        res.status(500).json({ error: err })
-      }
-    });
-  }
 });
 
 router.put('/pushLike/:id', autenticationMiddleware.isAuth, [

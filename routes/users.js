@@ -116,12 +116,6 @@ router.put('/:user_id/favorites/:tweet_id', function (request, response, next) {
 });
 
 router.delete('/:user_id/favorites/:tweet_id', autenticationMiddleware.isAuth, function (req, res, next) {
-  if (res.locals.authInfo.userId !== req.params.user_id) {
-    return res.status(401).json({
-      error: "Unauthorized",
-      message: "You are not the owner of the resource"
-    });
-  }
   User.findOne({ _id: req.params.user_id })
     .exec(function (err, user) {
       if (err) return res.status(500).json({ error: err });
@@ -129,22 +123,24 @@ router.delete('/:user_id/favorites/:tweet_id', autenticationMiddleware.isAuth, f
       var newfavorites = new Array();
       var active = false;
       for (var i = 0; i < user['favorites'].length; i++) {
-        if (user['favorites'][i] != req.params.tweet_id) {
-          newfavorites.push(user['favorite']);
+        var fav = user['favorites'][i];
+        if (fav != req.params.tweet_id) {
+          newfavorites.push(fav);
+          
         }
         else {
           active = true;
         }
       }
       if (active) {
-        user['favorite'] = newfavorites;
+        user.favorites = newfavorites;
         user.save(function (err) {
-          if (err) return response.status(500).json({ error: err });
-          response.json(user);
+          if (err) return res.status(500).json({ error: "Delete not complete" });
+          res.json(user);
         });
       }
       else {
-        return response.status(401).json({
+        return res.status(401).json({
           error: "Unauthorized",
           message: "Favorite non found"
         })
