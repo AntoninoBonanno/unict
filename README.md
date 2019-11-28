@@ -1,12 +1,11 @@
-Verifica finale per il conseguimento di Altre Abilità per il cds magistrale di
-ingegneria informatica.
+# Progetto backend - Verifica finale per il conseguimento di Altre Abilità per il cds magistrale di ingegneria informatica.
 
 ## Authors
 
-* **Biuso Mario** - [GitHub](https://github.com/PurpleBooth)
-* **Bonanno Antonino** - [GitHub](https://github.com/PurpleBooth)
-* **Fugale Dario** - [GitHub](https://github.com/PurpleBooth)
-* **Nadir Gherbi** - [GitHub](https://github.com/PurpleBooth)
-* **Rigano Fabio** - [GitHub](https://github.com/PurpleBooth)
-* **Vecchio Andrea** - [GitHub](https://github.com/PurpleBooth)
-* **Zito Francesco** - [GitHub](https://github.com/PurpleBooth)
+* **Biuso Mario** - [GitHub](https://github.com/Mariobiuso)
+* **Bonanno Antonino** - [GitHub](https://github.com/AntoninoBonanno)
+* **Fugale Dario** - [GitHub](https://github.com/dariofugale95)
+* **Nadir Gherbi** - [GitHub](https://github.com/ngwes)
+* **Rigano Fabio** - [GitHub](https://github.com/fabiorigano)
+* **Vecchio Andrea** - [GitHub](https://github.com/andreav94)
+* **Zito Francesco** - [GitHub](https://github.com/francescozito6)
