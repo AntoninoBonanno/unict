@@ -12,6 +12,7 @@ const {
   checkValidation
 } = require('../middlewares/validation');
 
+// Recupero tutti i tweet principali (anche i preferiti) (STORIA 3)
 
 router.get('/', autenticationMiddleware.isAuth, function (req, res, next) {
   Tweet.find({
@@ -60,6 +61,8 @@ router.get('/:id', autenticationMiddleware.isAuth, function (req, res, next) {
     });
 });
 
+// Recupero tutti i commenti di un tweet principale (STORIA 1)
+
 router.get('/:id/comments', autenticationMiddleware.isAuth, function (req, res, next) {
   Tweet.find({
       _parent: req.params.id
@@ -73,6 +76,9 @@ router.get('/:id/comments', autenticationMiddleware.isAuth, function (req, res, 
     });
 });
 
+// La creazione e' stata modificata per impedire la creazione di gerarchie di commenti:
+// solo i tweet principali possono essere commentati (STORIA 1)
+
 router.post('/', autenticationMiddleware.isAuth, [
   check('tweet').isString().isLength({
     min: 1,
@@ -81,7 +87,6 @@ router.post('/', autenticationMiddleware.isAuth, [
 ], checkValidation, function (req, res, next) {
   const newTweet = new Tweet(req.body);
   newTweet._author = res.locals.authInfo.userId;
-
   if (newTweet._parent != null) {
     if (Tweet.findOne({
         _id: newTweet._parent
@@ -91,7 +96,6 @@ router.post('/', autenticationMiddleware.isAuth, [
       });
     }
   }
-
   newTweet.save(function (err) {
     if (err) {
       return res.status(500).json({
@@ -137,6 +141,8 @@ router.put('/:id', autenticationMiddleware.isAuth, [
     });
   });
 });
+
+// La rimozione di un tweet comporta l'eventuale eliminazione di tutti i commenti (STORIA 1)
 
 router.delete('/:id', autenticationMiddleware.isAuth, function (req, res, next) {
   Tweet.findOne({
@@ -191,6 +197,8 @@ router.delete('/:id', autenticationMiddleware.isAuth, function (req, res, next) 
   });
 });
 
+// Inserimento e rimozione del like a un tweet (STORIA 2)
+
 router.put('/pushLike/:id', autenticationMiddleware.isAuth, [
   check('tweet').isString().isLength({
     min: 1,
@@ -207,7 +215,6 @@ router.put('/pushLike/:id', autenticationMiddleware.isAuth, [
       });
     }
     if (!tweet) {
-      console.log("tweet non trovato");
       return res.status(404).json({
         message: "Tweet not found"
       })
@@ -221,6 +228,8 @@ router.put('/pushLike/:id', autenticationMiddleware.isAuth, [
     });
   });
 });
+
+// Recupero tutti i tweet che contengono un hashtag (STORIA 4)
 
 router.get('/hashtag/:htag', autenticationMiddleware.isAuth, function (req, res, next) {
   Tweet.find({

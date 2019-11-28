@@ -1,5 +1,10 @@
 const mongoose = require('mongoose');
 
+// Inseriti gli attributi:
+// - _parent: contiene l'id del tweet principale;
+// - isFavorite: posto a true se il tweet è preferito dall'utente corrente
+// - like: array degli id degli utenti
+
 const tweetSchema = mongoose.Schema({
     _author: {
         type: mongoose.Schema.Types.ObjectId,

@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 
+// Inserito l'attributo favorites per tenere traccia dei tweet preferiti
+
 const userSchema = mongoose.Schema({
     name: String,
     surname: String,

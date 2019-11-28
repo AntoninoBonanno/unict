@@ -88,13 +88,9 @@ router.delete('/:id', autenticationMiddleware.isAuth, function (req, res, next) 
     });
 });
 
+// Inserimento dell'id di un tweet nell'array favorites dell'user corrente (STORIA 3)
+
 router.put('/:user_id/favorites/:tweet_id', function (request, response, next) {
-  /*if (response.locals.authInfo.userId !== request.params.user_id) {
-    return response.status(401).json({
-      error: "Unauthorized",
-      message: "You are not the owner of the resource"
-    });
-  }*/
   User.findOne({ _id: request.params.user_id })
     .exec(function (err, user) {
       if (err) return response.status(500).json({ error: err });
@@ -114,6 +110,9 @@ router.put('/:user_id/favorites/:tweet_id', function (request, response, next) {
       });
     });
 });
+
+// Eliminazione dell'id di un tweet preferito dall'array dell'utente corrente
+
 router.delete('/:user_id/favorites/:tweet_id', autenticationMiddleware.isAuth, function (req, res, next) {
   User.findOne({ _id: req.params.user_id })
     .exec(function (err, user) {
