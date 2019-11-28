@@ -222,17 +222,16 @@ router.put('/pushLike/:id', autenticationMiddleware.isAuth, [
   });
 });
 
-router.get('/:tag/hashtag', autenticationMiddleware.isAuth, function (req, res, next) {
+router.get('/hashtag/:htag', autenticationMiddleware.isAuth, function (req, res, next) {
   Tweet.find({
       tweet: {
-        $regex: req.params.tag,
-        $options: i
+        $regex: "#" + req.params.htag
       }
     })
     .populate("_author", "-password")
     .exec(function (err, matchedTweet) {
-      if (err) return res.status(500).json({
-        error: err
+      if (err) return res.status(404).json({
+        error: "Tweets not found"
       });
       res.json(matchedTweet);
     });
