@@ -114,7 +114,6 @@ router.put('/:user_id/favorites/:tweet_id', function (request, response, next) {
       });
     });
 });
-
 router.delete('/:user_id/favorites/:tweet_id', autenticationMiddleware.isAuth, function (req, res, next) {
   User.findOne({ _id: req.params.user_id })
     .exec(function (err, user) {
@@ -126,7 +125,6 @@ router.delete('/:user_id/favorites/:tweet_id', autenticationMiddleware.isAuth, f
         var fav = user['favorites'][i];
         if (fav != req.params.tweet_id) {
           newfavorites.push(fav);
-          
         }
         else {
           active = true;
