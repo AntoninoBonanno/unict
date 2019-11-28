@@ -199,7 +199,7 @@ router.delete('/:id', autenticationMiddleware.isAuth, function (req, res, next) 
 
 // Inserimento e rimozione del like a un tweet (STORIA 2)
 
-router.put('/pushLike/:id', autenticationMiddleware.isAuth, [
+router.put('/:id/like', autenticationMiddleware.isAuth, [
   check('tweet').isString().isLength({
     min: 1,
     max: 120
